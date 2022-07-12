@@ -19,4 +19,4 @@ Sowohl vorgeschlagen als auch zugelassen werden Produkte, die:
 - aktiv sein und 
 - keine "Children" (Subvarianten) haben.
 
-Die Javascript-Scripts sollten natürlich als Plugins geliefert werden, ich konnte aber leider das Storefront nicht kompilieren, ich habe es versucht, aber wegen vieler Fehler leider nicht geschafft, weder im Docker-Container noch lokal in SW-Installation unter Windows und WAMP. So habe ich sie also in einer nicht eleganter Form halt in twig-Datei als Funktionen gelassen.
+Die Javascript-Scripts sollten natürlich als Plugins geliefert werden, ich konnte aber das Storefront nicht kompilieren, ich habe es versucht, aber wegen vieler Fehler leider nicht geschafft, weder im Docker-Container noch lokal in SW-Installation unter Windows und WAMP. So habe ich sie also in einer nicht eleganter Form halt in twig-Datei als Funktionen gelassen.
