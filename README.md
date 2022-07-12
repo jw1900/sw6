@@ -3,7 +3,7 @@ Das Plugin lässt bis 10 Produkte eintragen und auf einmal zum Warenkorb hinzuf�
 
 ## Benutzung
 Der Eingangspfad ist /**fastorder**.
-In Product-number-feldern können Produktnummer eingetragen werden. Beim Eintragen soll jeweils Datalist mit Vorschlägen von verfügbaren Produkten erscheinen. Die wird durch ProductController (**hintProducts**) geliefert.
+In Product-number-feldern können Produktnummer eingetragen werden. Beim Eintragen soll jeweils Datalist mit Vorschlägen von verfügbaren Produkten erscheinen. Die wird durch ProductController (**hintProducts**-Methode) geliefert.
 Wenn eine inkorrekte Produktnummer eingetragen worden ist, erscheint das Feld rot markiert, ganz unten soll auch eine Fehlermeldung sichtbar sein, daß rot markierte Produktnummer beim Hinzufügen in den Warenkorb ignoriert werden.
 Wenn eine korrekte Produktnummer eingetragen ist, bekommt das Quantity-Feld **required** Attribut, muss also vor dem Absenden auch ausgefüllt werden.
 ## Architektur
