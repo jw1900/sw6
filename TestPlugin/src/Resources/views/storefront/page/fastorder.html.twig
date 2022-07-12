@@ -1,0 +1,174 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <h3>{{ title_h3 }}</h3>
+    <div class="d-flex row justify-content-start mt-5 mb-3">
+        <div class="col-5">
+            <form action="addtocart" method="POST">
+                {{ sw_csrf('frontend.test.addtocart', {"mode": "input"}) }}
+                <div class="row">
+                    <div class="col-8 pr-1"><h5>Product number</h5></div>
+                    <div class="col-3 pr-1"><h5>Quantity</h5></div>
+                </div>
+
+                {% for i in 0..9 %}
+                    <div class="row">
+                        <div class="col-8 pr-1">
+                            <input type="text" id="art[{{i}}]" name="art[{{i}}]" class="form-control mb-1 article" placeholder="Insert article number.." aria-label="Search all categories..." value="">
+                            <input type="hidden" id="artid[{{i}}]" name="artid[{{i}}]" value="">
+                        </div>
+                        <div class="col-3 pl-0">
+                            <input type="text" id="artqty[{{i}}]" name="artqty[{{i}}]" class="form-control mb-1 text-center quantity" placeholder="Quantity" aria-label="Quantity" value="">
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <div id="info" class="text-danger font-italic mt-2">&nbsp;</div>
+                <button id="submit" class="btn btn-buy mt-3" title="Add to shopping cart">
+                    Add to shopping cart
+                </button>
+            </form>
+        </div>
+    </div>
+
+<script>
+
+    // Set default input border color
+    let borderNeutralColor = document.getElementById("artqty[0]").style.borderColor;
+    
+    // Create collection of product-number input fields
+    let artList = document.querySelectorAll(".article");
+
+    for (let al of artList) {
+        // FOR FIREFOX BUG - datalist display latency
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') > -1){
+            al.autocomplete = "off";
+            al.autocomplete = "on";
+        }
+        // ---------------------------------------------
+        
+        al.addEventListener('keyup', function(e){
+            styleNeutral(al);
+            if(al.value.length > 0){
+                // Add suggested products
+                updateList(e.target);
+            }
+        });
+
+        al.addEventListener('focusout', function(e){        
+            if(al.value.length > 0){
+                // Check if inserted product-number exists
+                checkProduct(e.target);
+            }
+            checkBorders(artList);
+        });
+    }
+
+    function checkBorders(list){
+        var errors = 0;
+        for(let el of list){
+            if(el.style.borderColor != borderNeutralColor){
+                errors++;
+            }
+        }
+        if(errors > 0){
+            document.getElementById("info").innerHTML = "Fields marked RED contain incorrect product-numbers and will be ignored.";
+        }
+        else{ 
+            document.getElementById("info").innerHTML = "&nbsp;";
+        }
+    }
+
+    // Request data with suggested product-numbers
+    function updateList(inputElement)
+    {
+        fetch("/hintproducts?val="+inputElement.value, {
+        method: "GET",
+        }).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw response;
+        })
+        .then(function (data) {
+            renderData(inputElement, data);
+        }).catch(function (error) {
+            console.warn(error);
+        });
+    }
+
+    // Change datalist with suggested product-numbers
+    function renderData(inputElement, data){
+        var id = "artdata";
+        if (document.contains(document.getElementById(id))) {
+                document.getElementById(id).remove();
+        }
+        let datalist = document.createElement('datalist');
+        datalist.id = id;
+        inputElement.setAttribute('list', datalist.id);
+        let fragment = document.createDocumentFragment();
+        for(let prod of data){
+            let option = document.createElement('option');
+            option.textContent = prod.number;
+            fragment.append(option);
+        }
+        datalist.append(fragment);
+        inputElement.after(datalist);
+    }
+
+    // Check if product exists and get his ID
+    function checkProduct(inputElement)
+    {
+        fetch("/checkproduct?val="+inputElement.value, {
+        method: "GET",
+        }).then(function (response) {
+            if (response.ok) {
+                return response.json();
+            }
+            throw response;
+        })
+        .then(function (data) {
+            styleInput(inputElement, data);
+        }).catch(function (error) {
+            console.warn(error);
+        });
+    }
+
+    // If product exists / doesn't - style input border neutral/red + and set hidden input value with ID / empty
+    function styleInput(inputElement, data){
+        var id = inputElement.getAttribute("name").substr(3);
+        if(data[0].info == 'none'){
+            styleRed(inputElement);
+            unsetQuantityAsRequired(id);
+            document.getElementById("artid" + id).value = "";
+        }else{
+            styleNeutral(inputElement);
+            setQuantityAsRequired(id);
+            document.getElementById("artid" + id).value = data[0].info;
+        }
+        checkBorders(artList);
+    }
+
+    // Style border RED
+    function styleRed(element){
+        element.style.borderColor = "red";
+    }
+
+    // Style border Default
+    function styleNeutral(element){
+        element.style.borderColor = borderNeutralColor;
+    }
+
+    // If correct product - quantity field REQUIRED
+    function setQuantityAsRequired(id){
+        document.getElementById("artqty"+id).setAttribute('required', '');
+    }
+
+    // If incorrect product - quantity field NOT REQUIRED
+    function unsetQuantityAsRequired(id){
+        document.getElementById("artqty"+id).removeAttribute('required');
+    }
+
+</script>
+
+{% endblock %}
